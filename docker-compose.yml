@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DBHOST: "postgres"
+      DBPORT: "5432"
+      DBUSER: "validationgorm"
+      DBPASS: "validationgorm"
+      DBNAME: "validationgorm"
+      SSLMODE: "disable"
+    volumes:
+      - .:/src
+    working_dir: "/src"
+    depends_on:
+      - postgres
+    stdin_open: true
+    tty: true
+    networks:
+      - network
+
+  postgres:
+    image: postgres:12.6
+    environment:
+      POSTGRES_USER: "validationgorm"
+      POSTGRES_PASSWORD: "validationgorm"
+      POSTGRES_DB: "validationgorm"
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@validationgorm.com"
+      PGADMIN_DEFAULT_PASSWORD: "validationgorm"
+    ports:
+      - 6543:80
+    depends_on:
+      - postgres
+    networks:
+      - network
+
+volumes:
+  data:
+
+networks:
+  network:
+    driver: bridge
