@@ -14,11 +14,18 @@ type Brand struct {
 	Active bool
 }
 
+type Category struct {
+	gorm.Model
+	Name   string
+	Active bool
+}
+
 type Product struct {
 	gorm.Model
 	Description string
 	Active      bool
-	Brand       Brand `gorm:"foreignKey:ID"`
+	Brand       Brand    `gorm:"foreignKey:ID"`
+	Category    Category `gorm:"foreignKey:ID"`
 }
 
 func main() {
@@ -31,10 +38,26 @@ func main() {
 
 	fmt.Println("Connected. db.Error", db.Error)
 
-	db.AutoMigrate(&Brand{}, &Product{})
+	db.AutoMigrate(&Brand{}, &Category{}, &Product{})
+
+	// db.Create(&Product{
+	// 	Active:      true,
+	// 	Description: "product 1 desc",
+	// 	Brand:       Brand{Name: "brand1", Active: true},
+	// 	Category:    Category{Name: "category", Active: true},
+	// })
+	brand := Brand{}
+	db.First(&brand, 1)
+	fmt.Println("category:", brand)
+
+	category := Category{}
+	db.First(&category, 1)
+	fmt.Println("category:", category)
 
 	db.Create(&Product{
 		Active:      true,
-		Description: "product 1 desc",
-		Brand:       Brand{Name: "brand1", Active: true}})
+		Description: "product 2 desc",
+		Brand:       brand,
+		Category:    category,
+	})
 }
